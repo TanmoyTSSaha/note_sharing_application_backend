@@ -134,7 +134,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'note_sharing_db',
         'USER': 'postgres',
-        'PASSWORD': 'Tanu@2001',
+        'PASSWORD': '********',
         'HOST': 'localhost',
         'PORT': '5432',
     }
