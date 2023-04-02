@@ -130,15 +130,16 @@ WSGI_APPLICATION = 'note_sharing_application.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'note_sharing_db',
-        'USER': 'postgres',
-        'PASSWORD': '********',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+  'default': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'neondb',
+    'USER': 'TanmoyTSSaha',
+    'PASSWORD': 'EOt4VWwe6zbY',
+    'HOST': 'ep-patient-sky-884586.ap-southeast-1.aws.neon.tech',
+    'PORT': '5432',
+  }
 }
+
 
 
 # Password validation
