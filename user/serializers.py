@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from .models import User, Profile
 
-class UserSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'username', 'password']
+        fields = ['first_name', 'last_name', 'name', 'email', 'password','username']
         extra_kwargs = {
             'password': {'write_only':True}
         }
@@ -19,8 +19,8 @@ class UserSerializer(serializers.Serializer):
         return instance
     
 
-class ProfileSerializer(serializers.Serializer):
-    user  = UserSerializer(data=User)
+class ProfileSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Profile
-        fields = ['user', 'profile_image', 'gender', 'description', 'university', 'course', 'year', 'collegeID']
+        fields = '__all__'

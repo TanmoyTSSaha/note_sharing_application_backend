@@ -6,14 +6,18 @@ from PIL import Image
 class User(AbstractUser):
     first_name = models.CharField(max_length=300, null=False)
     last_name = models.CharField(max_length=300, null=False)
-    name= str(first_name) + str(last_name)
+    name= models.CharField(max_length=600)
     email = models.EmailField(max_length=300, unique=True, null=False)
     password = models.CharField(max_length=200, null=False)
     username = models.CharField(max_length=300, unique=True, null=False)
     date_joined = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        self.name = self.first_name + ' ' + self.last_name
+        super(User, self).save(*args, **kwargs)
+
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['name', 'email', 'password']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'email', 'password']
 
     def __str__(self):
         return self.username
@@ -32,18 +36,18 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username + ' Profile'
     
-    def post(self, *args, **kwargs):
-        self.update(*args, **kwargs)
+    # def post(self, *args, **kwargs):
+    #     self.update(*args, **kwargs)
 
-        profileImg = Image.open(self.profile_image.path)
-        collegeIDImg = Image.open(self.collegeID.path)
+    #     profileImg = Image.open(self.profile_image.path)
+    #     collegeIDImg = Image.open(self.collegeID.path)
         
-        if profileImg.height > 1000 or profileImg.width > 1000:
-            output_size = (1000,1000)
-            profileImg.thumbnail(output_size)
-            profileImg.save(self.profile_image.path)
+    #     if profileImg.height > 1000 or profileImg.width > 1000:
+    #         output_size = (1000,1000)
+    #         profileImg.thumbnail(output_size)
+    #         profileImg.save(self.profile_image.path)
 
-        if collegeIDImg.height > 500 or collegeIDImg.width > 500:
-            output_size = (500,500)
-            collegeIDImg.thumbnail(output_size)
-            collegeIDImg.save(self.collegeID.path)
+    #     if collegeIDImg.height > 500 or collegeIDImg.width > 500:
+    #         output_size = (500,500)
+    #         collegeIDImg.thumbnail(output_size)
+    #         collegeIDImg.save(self.collegeID.path)
