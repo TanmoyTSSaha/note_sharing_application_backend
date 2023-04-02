@@ -8,3 +8,5 @@ Pillow==9.4.0
 python-dateutil==2.8.2
 rest-framework-simplejwt==0.0.2
 virtualenv==20.21.0
+django-environ==0.10.0
+psycopg2==2.3.5

@@ -12,9 +12,12 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-
+import environ
 from django.conf import settings
 
+
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5jdwj=78iz0y5$qpvj+b9agpjfx!1a&gc3*ko=qka!r&(mu$!#'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -131,12 +134,12 @@ WSGI_APPLICATION = 'note_sharing_application.wsgi.application'
 
 DATABASES = {
   'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'neondb',
-    'USER': 'TanmoyTSSaha',
-    'PASSWORD': 'EOt4VWwe6zbY',
-    'HOST': 'ep-patient-sky-884586.ap-southeast-1.aws.neon.tech',
-    'PORT': '5432',
+    'ENGINE': env('DATABASE_ENGINE'),
+    'NAME': env('DATABASE_NAME'),
+    'USER': env('DATABASE_USER'),
+    'PASSWORD': env('DATABASE_PASSWORD'),
+    'HOST': env('DATABASE_HOST'),
+    'PORT': env('DATABASE_PORT'),
   }
 }
 
