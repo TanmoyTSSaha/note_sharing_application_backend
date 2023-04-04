@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 import environ
 from django.conf import settings
+import os
 
 
 env = environ.Env()
@@ -32,7 +33,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['note-sharing-application.onrender.com', 'localhost']
 
 
 # Application definition
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
 
     # Local App
     'user.apps.UserConfig',
+    'note_posts.apps.NotePostsConfig'
 ]
 
 MIDDLEWARE = [
@@ -102,11 +104,25 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES = (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+else:
+    DEFAULT_RENDERER_CLASSES = (
+        'rest_framework.renderers.JSONRenderer',
+    )
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
     )
 }
+
+
 
 ROOT_URLCONF = 'note_sharing_application.urls'
 
@@ -179,7 +195,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
