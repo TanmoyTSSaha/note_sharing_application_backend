@@ -1,15 +1,19 @@
+import os
+from PIL import Image
+from pathlib import Path
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from PIL import Image
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class User(AbstractUser):
-    first_name = models.CharField(max_length=300, null=False)
-    last_name = models.CharField(max_length=300, null=False)
-    name= models.CharField(max_length=600)
+    first_name = models.CharField(max_length=50, null=False)
+    last_name = models.CharField(max_length=50, null=False)
+    name= models.CharField(max_length=100)
     email = models.EmailField(max_length=300, unique=True, null=False)
     password = models.CharField(max_length=200, null=False)
-    username = models.CharField(max_length=300, unique=True, null=False)
+    username = models.CharField(max_length=50, unique=True, null=False)
     date_joined = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -25,13 +29,13 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_image = models.ImageField(default= 'media/profile_picture/profile_avatar_m.png', upload_to='media/profile_picture')
+    profile_image = models.ImageField(default= os.path.join(BASE_DIR, 'media/profile_picture/profile_avatar_m.png'), upload_to='profile_picture')
     gender = models.CharField(max_length=10)
     description = models.CharField(max_length=500)
     university = models.CharField(max_length=200)
     course = models.CharField(max_length=200)
     year = models.IntegerField()
-    collegeID = models.ImageField(default= 'media/college_id/defult_college_id.jpg', upload_to='media/college_id', null=True)
+    collegeID = models.ImageField(default= os.path.join(BASE_DIR, 'media/college_id/defult_college_id.jpg'), upload_to='college_id', null=True)
 
     def __str__(self):
         return self.user.username + ' Profile'
