@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth import logout
+from rest_framework_simplejwt.authentication import JWTAuthentication
 # from rest_framework.renderers import JSONRenderer
 
 from .serializers import UserSerializer, ProfileSerializer
@@ -53,22 +54,21 @@ class UserLogin(APIView):
                 'access':str(refreshToken.access_token)
             }
             return Response(response, status=status.HTTP_200_OK)
-        return Response({'error':'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'status':status.HTTP_401_UNAUTHORIZED, 'error':'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
 
 class UserLogoutView(APIView):
-    permission_classes=[permissions.IsAuthenticated]
-    # renderer_classes=[JSONRenderer]
+    permission_classes=[JWTAuthentication]
 
     def post(self, request):
         try:
-            refresh_token = request.data["refresh"]
+            refresh_token = request.data.get("refresh")
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response({'message': 'user logged out successfully'},status=status.HTTP_205_RESET_CONTENT)
+            logout(request)
+            return Response({'status':status.HTTP_205_RESET_CONTENT, 'message': 'user logged out successfully'},status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            return Response({'message': 'something wnet wrong try again'},status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({'status':status.HTTP_400_BAD_REQUEST, 'message': 'something wnet wrong try again'},status=status.HTTP_400_BAD_REQUEST)
 
     
 class UserView(APIView):
@@ -83,6 +83,17 @@ class UserView(APIView):
 class UserProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     # renderer_classes=[JSONRenderer]
+
+    def get_object(self):
+        return self.request.user.profile
+    
+    def put(self, request, *args, **kwargs):
+        profileSerializer = ProfileSerializer(instance=self.get_object(), data=request.data)
+        if profileSerializer.is_valid():
+            profileSerializer.save()
+            return Response({'status':status.HTTP_200_OK, 'message':'OK', 'data':profileSerializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({'status':status.HTTP_400_BAD_REQUEST, 'message':'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
         userProfileSerialized = ProfileSerializer(request.user.profile)

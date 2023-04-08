@@ -1,8 +1,9 @@
 from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
-from .models import Post
+from .models import Post, Like
 from .serializer import PostSerializer
 
 # Create your views here.
@@ -31,8 +32,13 @@ class PostListView(APIView):
     def get(self, request):
         posts = Post.objects.all()[:20]
         postSerializer = PostSerializer(posts, many=True)
-        return Response(postSerializer.data)
+        return Response({'status':status.HTTP_200_OK, 'message':'OK','data':postSerializer.data}, status=status.HTTP_200_OK)
     
+    def get(self, request, user_id):
+        posts = Post.objects.get(user_id=user_id)
+        postSerializer = PostSerializer(posts, many=True)
+        return Response({'status':status.HTTP_200_OK, 'message':'OK','data':postSerializer.data}, status=status.HTTP_200_OK)
+
 
 class PostDetailedView(APIView):
     permission_classes=[permissions.IsAuthenticated]
@@ -45,7 +51,7 @@ class PostDetailedView(APIView):
         
     def get(self, request, post_id):
         post = self.get_object(post_id=post_id)
-        postSerializer=PostSerializer(self)
+        postSerializer=PostSerializer(post)
         return Response(postSerializer.data)
     
     def put(self, request, post_id):
@@ -66,29 +72,10 @@ class PostDetailedView(APIView):
         return Response({'status':status.HTTP_204_NO_CONTENT, 'message':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
     
 
+class PostLikeAPIView(APIView):
+    permission_classes=[permissions.IsAuthenticated]
 
-
-# class PostLikeView(APIView):
-#     permission_classes=[permissions.IsAuthenticated]
-
-#     def post(self, request):
-#         user = request.data.get('user_id')
-#         post = Post.objects.filter(post_id=request.data.get('post_id'))
-#         current_likes = post.post_liked
-#         post_liked = Likes.objects.filter(user=user, post=post).count()
-
-#         if not post_liked:
-#             post_liked = Likes.objects.create(user=user, post=post)
-#             current_likes = current_likes + 1
-#         else:
-#             post_liked = Likes.objects.filter(user=user, post=post).delete()
-#             current_likes = current_likes - 1
-
-#         return Response(
-#             {
-#                 'status':status.HTTP_200_OK,
-#                 'message': 'OK',
-#                 'current_likes': current_likes
-#             },
-#             status=status.HTTP_200_OK
-#         )
+    def post(self, request, post_id):
+        post = get_object_or_404(Post, post_id=post_id)
+        user = request.user
+        like, created = Like.objects.get_or_create(user=user, post=post)
