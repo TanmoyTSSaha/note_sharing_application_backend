@@ -26,5 +26,13 @@ class Like(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.user.username} likes {self.post.title}'
+        return f'{self.user.username} likes {self.post.post_content[:20]}...'
     
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    comment_content = models.TextField(max_length=1000, null=False, blank=False)
+    created_time = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.user.username} commented {self.post.post_content[:20]}...'
