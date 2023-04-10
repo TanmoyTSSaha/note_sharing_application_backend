@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from .models import Post, Like
-from .serializer import PostSerializer
+from .serializer import PostSerializer, PostLikeSerializer
 
 # Create your views here.
 
@@ -79,3 +79,31 @@ class PostLikeAPIView(APIView):
         post = get_object_or_404(Post, post_id=post_id)
         user = request.user
         like, created = Like.objects.get_or_create(user=user, post=post)
+        if not created:
+            return Response({'status':status.HTTP_400_BAD_REQUEST, 'message':'You have already liked the post.'}, status=status.HTTP_400_BAD_REQUEST)
+        likeSerializer = PostLikeSerializer(like)
+        return Response({'status':status.HTTP_201_CREATED, 'data':likeSerializer.data}, status=status.HTTP_201_CREATED)
+    
+    def delete(self, request, post_id):
+        post = get_object_or_404(Post, post_id=post_id)
+        user = request.user
+        try:
+            like = Like.objects.get(user=user, post=post)
+            like.delete()
+            return Response({'status':status.HTTP_204_NO_CONTENT, 'message':'Deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Like.DoesNotExist:
+            return Response({'status':status.HTTP_400_BAD_REQUEST, 'message':"You haven't liked this post"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def get_like_count(self, post):
+        return Like.objects.filter(post=post).count()
+    
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, post_id=post_id)
+        like_count = self.get_like_count(post)
+        return Response({'status':status.HTTP_200_OK, 'like_count':like_count}, status=status.HTTP_200_OK)
+    
+class CommentAPIView(APIView):
+    permission_classes=[permissions.IsAuthenticated]
+
+    def post(self, request, post_id):
+        pass
