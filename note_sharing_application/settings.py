@@ -51,7 +51,8 @@ INSTALLED_APPS = [
 
     # Local App
     'user.apps.UserConfig',
-    'note_posts.apps.NotePostsConfig'
+    'note_posts.apps.NotePostsConfig',
+    'QnA_Forum.apps.QnaForumConfig'
 ]
 
 MIDDLEWARE = [

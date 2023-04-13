@@ -97,7 +97,7 @@ class UserProfileView(APIView):
 
     def get(self, request):
         userProfileSerialized = ProfileSerializer(request.user.profile)
-        return Response(userProfileSerialized.data)
+        return Response({'status':status.HTTP_200_OK, 'message':'OK', 'data':userProfileSerialized.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializedProfile = ProfileSerializer(data=request.data)
@@ -109,4 +109,4 @@ class UserProfileView(APIView):
     def delete(self, request):
         user_profile = request.data.profile
         user_profile.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'status':status.HTTP_204_NO_CONTENT, 'message':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
