@@ -1,11 +1,7 @@
 import os
 from PIL import Image
-from pathlib import Path
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 class User(AbstractUser):
     first_name = models.CharField(max_length=50, null=False)

@@ -22,7 +22,7 @@ class PostListView(APIView):
             return Response(
                 {
                     'status':status.HTTP_201_CREATED,
-                    'message': 'SUCCESS'
+                    'message': 'CREATED'
                 },
                 status=status.HTTP_201_CREATED
             )
@@ -59,19 +59,19 @@ class PostDetailedView(APIView):
     def put(self, request, post_id):
         post = self.get_object(post_id=post_id)
         if request.user != post.post_author:
-            return Response({'status':status.HTTP_403_FORBIDDEN, 'data':'Request denied'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'status':status.HTTP_403_FORBIDDEN, 'message':'REQUEST DENIED'}, status=status.HTTP_403_FORBIDDEN)
         postSerializer = PostSerializer(post, data=request.data)
         if postSerializer.is_valid():
             postSerializer.save()
-            return Response({'status':status.HTTP_202_ACCEPTED, 'data':postSerializer.data}, status=status.HTTP_202_ACCEPTED)
-        return Response({'status':status.HTTP_400_BAD_REQUEST, 'data':postSerializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status':status.HTTP_202_ACCEPTED, 'message':'UPDATED','data':postSerializer.data}, status=status.HTTP_202_ACCEPTED)
+        return Response({'status':status.HTTP_400_BAD_REQUEST, 'message':'BAD REQUEST', 'data':postSerializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, post_id):
         post = self.get_object(post_id=post_id)
         if request.user != post.post_author:
-            return Response({'status':status.HTTP_403_FORBIDDEN, 'data':'Request denied'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'status':status.HTTP_403_FORBIDDEN, 'message':'REQUEST DENIED'}, status=status.HTTP_403_FORBIDDEN)
         post.delete()
-        return Response({'status':status.HTTP_204_NO_CONTENT, 'data':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'status':status.HTTP_204_NO_CONTENT, 'message':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
     
 
 class PostLikeAPIView(APIView):
@@ -115,37 +115,40 @@ class CommentAPIView(APIView):
         if commentSerializer.is_valid():
             try:
                 commentSerializer.save()
-                return Response({'status':status.HTTP_201_CREATED, 'data':'Comment Created'}, status=status.HTTP_201_CREATED)
+                return Response({'status':status.HTTP_201_CREATED, 'message':'CREATED'}, status=status.HTTP_201_CREATED)
             except Exception as e:
-                return Response({'status':status.HTTP_400_BAD_REQUEST,'data':f'{e}'},status=status.HTTP_400_BAD_REQUEST)
+                return Response({'status':status.HTTP_400_BAD_REQUEST,'message':f'{e}'},status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({'status':status.HTTP_400_BAD_REQUEST,'data':'Bad request'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status':status.HTTP_400_BAD_REQUEST,'message':'BAD REQUEST'},status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentGetAPIView(APIView):
     def get(self, request, post_id):
-        comments = Comment.objects.filter(post=post_id)
-        commentSerializer = CommentSerializer(comments, many=True)
-        return Response({'status':status.HTTP_200_OK, 'message':'OK', 'data':commentSerializer.data}, status=status.HTTP_200_OK)
-    
+        try:
+            comments = Comment.objects.filter(post=post_id)
+            commentSerializer = CommentSerializer(comments, many=True)
+            return Response({'status':status.HTTP_200_OK, 'message':'OK', 'data':commentSerializer.data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'status':status.HTTP_500_INTERNAL_SERVER_ERROR, 'message':f'{e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     
 class CommentPutDeleteAPIView(APIView):
     def delete(self, request, comment_id):
         comment = get_object_or_404(Comment, comment_id=comment_id)
         if request.user != comment.user:
-            return Response({'status':status.HTTP_403_FORBIDDEN, 'data':'Request denied'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'status':status.HTTP_403_FORBIDDEN, 'message':'REQUEST DENIED'}, status=status.HTTP_403_FORBIDDEN)
         else:
             comment.delete()
-            return Response({'status':status.HTTP_204_NO_CONTENT, 'data':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
+            return Response({'status':status.HTTP_204_NO_CONTENT, 'message':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
         
     def put(self, request, comment_id):
         comment = get_object_or_404(Comment, comment_id=comment_id)
 
         if request.user != comment.user:
-            return Response({'status':status.HTTP_403_FORBIDDEN, 'data':'Request Denied'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'status':status.HTTP_403_FORBIDDEN, 'message':'REQUEST DENIED'}, status=status.HTTP_403_FORBIDDEN)
         else:
             commentSerializer = CommentSerializer(data=request.data)
             if commentSerializer.is_valid():
                 commentSerializer.save()
-                return Response({'status':status.HTTP_202_ACCEPTED, 'data':commentSerializer.data}, status=status.HTTP_202_ACCEPTED)
-        return Response({'status':status.HTTP_400_BAD_REQUEST, 'data':commentSerializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'status':status.HTTP_202_ACCEPTED, 'message':'UPDATED', 'data':commentSerializer.data}, status=status.HTTP_202_ACCEPTED)
+        return Response({'status':status.HTTP_400_BAD_REQUEST, 'message':'BAD REQUEST', 'data':commentSerializer.errors}, status=status.HTTP_400_BAD_REQUEST)
