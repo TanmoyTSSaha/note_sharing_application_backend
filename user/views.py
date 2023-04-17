@@ -8,7 +8,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 # from rest_framework.renderers import JSONRenderer
 
 from .serializers import UserSerializer, ProfileSerializer
-from .models import User
+from .models import User, Profile
 
 
 class UserRegister(APIView):
@@ -77,8 +77,15 @@ class UserView(APIView):
 
     def get(self, request):
         userSerializer = UserSerializer(request.user)
-        return Response(userSerializer.data)
+        return Response({'status':status.HTTP_200_OK, 'message':'OK','data':userSerializer.data,}, status=status.HTTP_200_OK)
+    
+class SingleUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, id):
+        user = User.objects.filter(id=id)
+        userSerializer = UserSerializer(user)
+        return Response({'status':status.HTTP_200_OK, 'message':'OK','data':userSerializer.data,}, status=status.HTTP_200_OK)
 
 class UserProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -110,3 +117,9 @@ class UserProfileView(APIView):
         user_profile = request.data.profile
         user_profile.delete()
         return Response({'status':status.HTTP_204_NO_CONTENT, 'message':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
+    
+class SingleUserProfileView(APIView):
+    def get(self, request, user):
+        profile = Profile.objects.filter(user=user)
+        userProfileSerialized = ProfileSerializer(profile)
+        return Response({'status':status.HTTP_200_OK, 'message':'OK', 'data':userProfileSerialized.data}, status=status.HTTP_200_OK)

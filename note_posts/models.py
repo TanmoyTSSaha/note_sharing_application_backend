@@ -7,7 +7,7 @@ from django.utils import timezone
 # Create your models here.
 class Post(models.Model):
     post_id = models.BigAutoField(primary_key=True)
-    post_content = models.TextField(null=True, blank=True, max_length=5000)
+    post_content = models.TextField(null=False, blank=False, max_length=5000)
     post_image = models.ImageField(null=True, blank=True, upload_to='note_picture')
     post_file = models.FileField(null=True, blank=True, upload_to='note_file')
     post_created_at = models.DateTimeField(auto_now_add=True)
