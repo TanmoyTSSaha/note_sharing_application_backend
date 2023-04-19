@@ -82,8 +82,14 @@ class UserView(APIView):
 class SingleUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_user(self, id):
+        try:
+            return User.objects.get(id=id)
+        except Exception as e:
+            return Response({'status':status.HTTP_404_NOT_FOUND, 'message':'NOT FOUND'}, status=status.HTTP_404_NOT_FOUND)
+
     def get(self, request, id):
-        user = User.objects.filter(id=id)
+        user = self.get_user(id=id)
         userSerializer = UserSerializer(user)
         return Response({'status':status.HTTP_200_OK, 'message':'OK','data':userSerializer.data,}, status=status.HTTP_200_OK)
 
@@ -119,7 +125,15 @@ class UserProfileView(APIView):
         return Response({'status':status.HTTP_204_NO_CONTENT, 'message':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
     
 class SingleUserProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get_profile(self, user):
+        try:
+            return Profile.objects.get(user=user)
+        except Profile.DoesNotExist:
+            return Response({'status':status.HTTP_404_NOT_FOUND, 'message':'NOT FOUND'}, status=status.HTTP_404_NOT_FOUND)
+        
+
     def get(self, request, user):
-        profile = Profile.objects.filter(user=user)
+        profile = self.get_profile(user=user)
         userProfileSerialized = ProfileSerializer(profile)
         return Response({'status':status.HTTP_200_OK, 'message':'OK', 'data':userProfileSerialized.data}, status=status.HTTP_200_OK)
