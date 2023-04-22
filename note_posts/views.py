@@ -112,14 +112,6 @@ class PostLikeAPIView(APIView):
 class CommentAPIView(APIView):
     permission_classes=[permissions.IsAuthenticated]
 
-    def get_comment_count(self, post):
-        return Comment.objects.filter(post=post).count()
-    
-    def get(self, request, post_id):
-        comments = get_object_or_404(Comment, post_id=post_id)
-        comment_count = self.get_comment_count(comments)
-        return Response({'status':status.HTTP_200_OK, 'comment_count':comment_count}, status=status.HTTP_200_OK)
-
     def post(self, request):
         commentSerializer = CommentSerializer(data=request.data)
 
@@ -132,6 +124,16 @@ class CommentAPIView(APIView):
         else:
             return Response({'status':status.HTTP_400_BAD_REQUEST,'message':'BAD REQUEST'},status=status.HTTP_400_BAD_REQUEST)
 
+class CommentCountGetAPIView(APIView):
+    permission_classes=[permissions.IsAuthenticated]
+    
+    def get_comment_count(self, post):
+        return Comment.objects.filter(post=post).count()
+    
+    def get(self, request, post_id):
+        comments = get_object_or_404(Comment, post_id=post_id)
+        comment_count = self.get_comment_count(comments)
+        return Response({'status':status.HTTP_200_OK, 'comment_count':comment_count}, status=status.HTTP_200_OK)
 
 class CommentGetAPIView(APIView):
     def get(self, request, post_id):
