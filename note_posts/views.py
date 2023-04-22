@@ -12,7 +12,9 @@ class PostListView(APIView):
     permission_classes=[permissions.IsAuthenticated]
 
     def post(self, request):
-        postSerializer = PostSerializer(data=request.data)
+        rawData = request.data
+        rawData['post_author'] = int(rawData['post_author'])
+        postSerializer = PostSerializer(data=rawData)
         
         if postSerializer.is_valid():
             try:
