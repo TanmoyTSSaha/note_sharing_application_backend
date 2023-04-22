@@ -101,7 +101,10 @@ class UserProfileView(APIView):
         return self.request.user.profile
     
     def put(self, request, *args, **kwargs):
-        profileSerializer = ProfileSerializer(instance=self.get_object(), data=request.data)
+        rawProfileData = request.data
+        rawProfileData['user_id'] = int(rawProfileData['user_id'])
+        rawProfileData['year'] = int(rawProfileData['year'])
+        profileSerializer = ProfileSerializer(instance=self.get_object(), data=rawProfileData)
         if profileSerializer.is_valid():
             profileSerializer.save()
             return Response({'status':status.HTTP_200_OK, 'message':'OK', 'data':profileSerializer.data}, status=status.HTTP_200_OK)
@@ -113,14 +116,17 @@ class UserProfileView(APIView):
         return Response({'status':status.HTTP_200_OK, 'message':'OK', 'data':userProfileSerialized.data}, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializedProfile = ProfileSerializer(data=request.data)
+        rawProfileData = request.data
+        rawProfileData['user_id'] = int(rawProfileData['user_id'])
+        rawProfileData['year'] = int(rawProfileData['year'])
+        serializedProfile = ProfileSerializer(data=rawProfileData)
         if serializedProfile.is_valid():
             serializedProfile.save()
             return Response(serializedProfile.data, status=status.HTTP_200_OK)
         return Response(serializedProfile.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        user_profile = request.data.profile
+        user_profile = int(request.data.profile)
         user_profile.delete()
         return Response({'status':status.HTTP_204_NO_CONTENT, 'message':'DELETED'}, status=status.HTTP_204_NO_CONTENT)
     
