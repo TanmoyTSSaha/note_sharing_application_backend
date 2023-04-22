@@ -102,7 +102,7 @@ class UserProfileView(APIView):
     
     def put(self, request, *args, **kwargs):
         rawProfileData = request.data
-        rawProfileData['user_id'] = int(rawProfileData['user_id'])
+        rawProfileData['user'] = int(rawProfileData['user'])
         rawProfileData['year'] = int(rawProfileData['year'])
         profileSerializer = ProfileSerializer(instance=self.get_object(), data=rawProfileData)
         if profileSerializer.is_valid():
@@ -117,7 +117,7 @@ class UserProfileView(APIView):
 
     def post(self, request):
         rawProfileData = request.data
-        rawProfileData['user_id'] = int(rawProfileData['user_id'])
+        rawProfileData['user'] = int(rawProfileData['user'])
         rawProfileData['year'] = int(rawProfileData['year'])
         serializedProfile = ProfileSerializer(data=rawProfileData)
         if serializedProfile.is_valid():
