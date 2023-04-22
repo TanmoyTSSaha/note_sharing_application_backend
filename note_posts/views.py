@@ -32,8 +32,9 @@ class PostListView(APIView):
             return Response({'error':'Unable to create post'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def get(self, request):
-        posts = Post.objects.all()
+        posts = Post.objects.all().order_by('post_created_at')
         postSerializer = PostSerializer(posts, many=True)
+
         return Response({'status':status.HTTP_200_OK, 'message':'OK','data':postSerializer.data}, status=status.HTTP_200_OK)
     
 
@@ -110,6 +111,14 @@ class PostLikeAPIView(APIView):
 
 class CommentAPIView(APIView):
     permission_classes=[permissions.IsAuthenticated]
+
+    def get_comment_count(self, post):
+        return Comment.objects.filter(post=post).count()
+    
+    def get(self, request, post_id):
+        comments = get_object_or_404(Comment, post_id=post_id)
+        comment_count = self.get_comment_count(comments)
+        return Response({'status':status.HTTP_200_OK, 'comment_count':comment_count}, status=status.HTTP_200_OK)
 
     def post(self, request):
         commentSerializer = CommentSerializer(data=request.data)
